@@ -75,10 +75,10 @@ class Cell:
         **kwargs: bool,
     ) -> None:
         self.configs = {}
-        self.configs["has_left_wall"] = kwargs.pop("has_left_wall", True)
-        self.configs["has_right_wall"] = kwargs.pop("has_right_wall", True)
-        self.configs["has_top_wall"] = kwargs.pop("has_top_wall", True)
-        self.configs["has_bottom_wall"] = kwargs.pop("has_bottom_wall", True)
+        self.configs["left"] = kwargs.pop("left", True)
+        self.configs["right"] = kwargs.pop("right", True)
+        self.configs["top"] = kwargs.pop("top", True)
+        self.configs["bottom"] = kwargs.pop("bottom", True)
 
         self._x1 = top_left.x
         self._y1 = top_left.y
@@ -99,19 +99,19 @@ class Cell:
 
         # Left wall
         left_wall = Line(Point(self._x1, self._y1), Point(self._x1, self._y2))
-        self._w.draw_line(left_wall, visible=self.configs["has_left_wall"])
+        self._w.draw_line(left_wall, visible=self.configs["left"])
 
         # Right wall
         right_wall = Line(Point(self._x2, self._y1), Point(self._x2, self._y2))
-        self._w.draw_line(right_wall, visible=self.configs["has_right_wall"])
+        self._w.draw_line(right_wall, visible=self.configs["right"])
 
         # Top wall
         top_wall = Line(Point(self._x1, self._y1), Point(self._x2, self._y1))
-        self._w.draw_line(top_wall, visible=self.configs["has_top_wall"])
+        self._w.draw_line(top_wall, visible=self.configs["top"])
 
         # Bottom wall
         bottom_wall = Line(Point(self._x1, self._y2), Point(self._x2, self._y2))
-        self._w.draw_line(bottom_wall, visible=self.configs["has_bottom_wall"])
+        self._w.draw_line(bottom_wall, visible=self.configs["bottom"])
 
     @property
     def center(self) -> Point:
@@ -211,8 +211,8 @@ class Maze:
         top_left_cell = self._cells[0][0]
         right_bottom_cell = self._cells[-1][-1]
 
-        top_left_cell.configs["has_top_wall"] = False
-        right_bottom_cell.configs["has_bottom_wall"] = False
+        top_left_cell.configs["top"] = False
+        right_bottom_cell.configs["bottom"] = False
 
         self._draw_cell(0, 0)
         self._draw_cell(self.num_cols - 1, self.num_rows - 1)
@@ -238,7 +238,7 @@ class Maze:
         match direction:
             case "top":
                 return "bottom"
-            case "bottom:":
+            case "bottom":
                 return "top"
             case "left":
                 return "right"
@@ -264,13 +264,12 @@ class Maze:
 
             direction = random.choice(unvisited)  # nosec
 
-            current_cell.configs[f"has_{direction}_wall"] = False
+            current_cell.configs[direction] = False
             self._draw_cell(i, j)
 
             x, y = neighbors_coords[direction]
             next_cell = self._cells[x][y]
-            next_cell_broken_wall_direction = self.get_opposite_direction(direction)
-            next_cell.configs[f"has_{next_cell_broken_wall_direction}_wall"] = False
+            next_cell.configs[self.get_opposite_direction(direction)] = False
 
             self._break_walls_r(x, y)
 
@@ -280,3 +279,35 @@ class Maze:
         for i in range(self.num_cols):  # x-axis
             for j in range(self.num_rows):  # y-axis
                 self._cells[i][j].visited = False
+
+    def _solve_r(self, i: int, j: int) -> bool:
+        """Solve the maze recursively."""
+        self._animate()
+
+        current_cell = self._cells[i][j]
+        current_cell.visited = True
+
+        broken_walls = [k for k, v in current_cell.configs.items() if not v]
+
+        if current_cell == self._cells[-1][-1]:
+            return True
+
+        neighbors_coords = self.get_neighbors_coords(i, j)
+        neighbors = {k: self._cells[x][y] for k, (x, y) in neighbors_coords.items()}
+        eligible_directions = [
+            k for k, v in list(neighbors.items()) if not v.visited and k in broken_walls
+        ]
+
+        for direction in eligible_directions:
+            x, y = neighbors_coords[direction]
+            next_cell = self._cells[x][y]
+            current_cell.draw_move(next_cell)
+            if self._solve_r(x, y):
+                return True
+            current_cell.draw_move(next_cell, undo=True)
+
+        return False
+
+    def solve(self) -> bool:
+        """Solve the maze."""
+        return self._solve_r(0, 0)
