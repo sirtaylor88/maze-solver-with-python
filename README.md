@@ -11,12 +11,20 @@ poetry install
 
 ## Run app
 
-To allow changes updates to the source code
+To allow changes updates to the source code:
 
 ```bash
 pip install -e .
 ```
 
+To run `maze` program:
+
 ```bash
 maze
+```
+
+## Run test
+
+```bash
+./scripts/test.sh
 ```

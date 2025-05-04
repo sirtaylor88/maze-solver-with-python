@@ -64,9 +64,9 @@ class Cell:
 
     def __init__(
         self,
-        w: Window,
         top_left: Point,
         right_bottom: Point,
+        win: tp.Optional[Window] = None,
         **kwargs: bool,
     ) -> None:
         self.configs = {}
@@ -80,13 +80,17 @@ class Cell:
         self._x2 = right_bottom.x
         self._y2 = right_bottom.y
 
-        self._w = w
+        self._w = win
 
     def __repr__(self) -> str:
         return f"Cell [({self._x1}, {self._y1}), ({self._x2}, {self._y2})]"
 
     def draw(self) -> None:
         """Draw a cell."""
+
+        if self._w is None:
+            return
+
         if self.configs["has_left_wall"]:
             self._w.draw_line(
                 Line(Point(self._x1, self._y1), Point(self._x1, self._y2))
@@ -117,6 +121,10 @@ class Cell:
 
     def draw_move(self, to_cell: tp.Self, undo: bool = False) -> None:
         """Draw a move."""
+
+        if self._w is None:
+            return
+
         fill_color = "red"
         if undo:
             fill_color = "grey"
@@ -134,7 +142,7 @@ class Maze:
         num_cols: int,
         cell_size_x: int,
         cell_size_y: int,
-        win: Window,
+        win: tp.Optional[Window] = None,
     ):
         self.top_left = top_left
 
@@ -173,12 +181,15 @@ class Maze:
             self.top_left.x + (i + 1) * self.cell_size_x,
             self.top_left.y + (j + 1) * self.cell_size_y,
         )
-        cell = Cell(self.win, top_left_of_cell, right_bottom_of_cell)
+        cell = Cell(top_left_of_cell, right_bottom_of_cell, win=self.win)
+
         cell.draw()
         self._animate()
         yield cell
 
     def _animate(self):
         """Visualize the algorithm in real time."""
+        if self.win is None:
+            return
         self.win.redraw()
         time.sleep(0.05)

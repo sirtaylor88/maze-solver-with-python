@@ -48,6 +48,7 @@ disable = [
     "too-many-arguments",
     "too-many-positional-arguments",
     "useless-import-alias",
+    "protected-access",
 ]
 
 # isort
