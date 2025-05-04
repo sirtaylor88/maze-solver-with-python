@@ -1,5 +1,6 @@
 """Module defining maze models."""
 
+import time
 import typing as tp
 from tkinter import BOTH, Canvas, Tk
 
@@ -81,6 +82,9 @@ class Cell:
 
         self._w = w
 
+    def __repr__(self) -> str:
+        return f"Cell [({self._x1}, {self._y1}), ({self._x2}, {self._y2})]"
+
     def draw(self) -> None:
         """Draw a cell."""
         if self.configs["has_left_wall"]:
@@ -118,3 +122,63 @@ class Cell:
             fill_color = "grey"
 
         self._w.draw_line(Line(self.center, to_cell.center), fill_color)
+
+
+class Maze:
+    """Define a maze."""
+
+    def __init__(
+        self,
+        top_left: Point,
+        num_rows: int,
+        num_cols: int,
+        cell_size_x: int,
+        cell_size_y: int,
+        win: Window,
+    ):
+        self.top_left = top_left
+
+        self.num_rows = num_rows
+        self.num_cols = num_cols
+
+        self.cell_size_x = cell_size_x
+        self.cell_size_y = cell_size_y
+
+        self.win = win
+        self._cells: list[list[Cell]] = []
+        self._create_cells()
+
+    def _create_cells(self):
+        """Fill the maze with cells.
+
+        col[0]: [row 0, row 1, row 2]
+        col[1]: [row 0, row 1, row 2]
+        col[2]: [row 0, row 1, row 2]
+        """
+
+        for i in range(self.num_cols):  # x-axis
+            col_cells = []
+            for j in range(self.num_rows):  # y-axis
+                cell = next(self._draw_cell(i, j))
+                col_cells.append(cell)
+            self._cells.append(col_cells)
+
+    def _draw_cell(self, i: int, j: int) -> tp.Generator[Cell, None, None]:
+        """Draw the cell."""
+        top_left_of_cell = Point(
+            self.top_left.x + i * self.cell_size_x,
+            self.top_left.y + j * self.cell_size_y,
+        )
+        right_bottom_of_cell = Point(
+            self.top_left.x + (i + 1) * self.cell_size_x,
+            self.top_left.y + (j + 1) * self.cell_size_y,
+        )
+        cell = Cell(self.win, top_left_of_cell, right_bottom_of_cell)
+        cell.draw()
+        self._animate()
+        yield cell
+
+    def _animate(self):
+        """Visualize the algorithm in real time."""
+        self.win.redraw()
+        time.sleep(0.05)
