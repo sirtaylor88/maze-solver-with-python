@@ -3,6 +3,28 @@
 from tkinter import BOTH, Canvas, Tk
 
 
+class Point:
+    """Define a Point."""
+
+    def __init__(self, x: int, y: int) -> None:
+        self.x = x
+        self.y = y
+
+
+class Line:
+    """Define a Line."""
+
+    def __init__(self, p1: Point, p2: Point) -> None:
+        self.p1 = p1
+        self.p2 = p2
+
+    def draw(self, canvas: Canvas, fill_color: str = "black") -> None:
+        """Draw a line."""
+        canvas.create_line(
+            self.p1.x, self.p1.y, self.p2.x, self.p2.y, fill=fill_color, width=2
+        )
+
+
 class Window:
     """Define a game window."""
 
@@ -29,3 +51,7 @@ class Window:
     def close(self) -> None:
         """Close the window."""
         self.__running = False
+
+    def draw_line(self, line: Line, fill_color: str = "black") -> None:
+        """Draw a line in window canvas."""
+        line.draw(self.__canvas, fill_color)
