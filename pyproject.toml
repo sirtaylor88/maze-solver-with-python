@@ -12,11 +12,14 @@ dependencies = ["poetry-dynamic-versioning (>=1.8.2,<2.0.0)"]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry-dynamic-versioning]
-enable = true
-
 [tool.poetry]
 version = "0.0.0"
+
+[tool.poetry.scripts]
+maze = "maze_solver_with_python.__main__:main"
+
+[tool.poetry-dynamic-versioning]
+enable = true
 
 [tool.poetry.group.dev.dependencies]
 bandit = "^1.8.3"

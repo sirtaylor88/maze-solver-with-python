@@ -1,0 +1,1 @@
+python3 maze_solver_with_python/__main__.py
