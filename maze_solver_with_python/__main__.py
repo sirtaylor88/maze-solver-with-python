@@ -8,7 +8,7 @@ def main() -> None:
     win = Window(800, 600)
     p1 = Point(100, 100)
 
-    Maze(p1, 10, 10, 20, 20, win)
+    Maze(p1, 3, 3, 50, 50, win)
 
     win.wait_for_close()
 

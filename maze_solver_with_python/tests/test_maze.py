@@ -9,3 +9,5 @@ def test_maze() -> None:
 
     assert len(m._cells) == 10
     assert len(m._cells[0]) == 10
+    assert m._cells[0][0].configs["has_top_wall"] is False
+    assert m._cells[-1][-1].configs["has_bottom_wall"] is False
