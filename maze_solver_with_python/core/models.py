@@ -1,5 +1,6 @@
 """Module defining maze models."""
 
+import random
 import time
 import typing as tp
 from tkinter import BOTH, Canvas, Tk
@@ -85,6 +86,7 @@ class Cell:
         self._y2 = right_bottom.y
 
         self._w = win
+        self.visited = False
 
     def __repr__(self) -> str:
         return f"Cell [({self._x1}, {self._y1}), ({self._x2}, {self._y2})]"
@@ -143,6 +145,7 @@ class Maze:
         cell_size_x: int,
         cell_size_y: int,
         win: tp.Optional[Window] = None,
+        seed: tp.Optional[int] = None,
     ):
         self.top_left = top_left
 
@@ -156,6 +159,10 @@ class Maze:
         self._cells: list[list[Cell]] = []
         self._create_cells()
         self._break_entrance_and_exit()
+        if seed is not None:
+            random.seed(seed)
+        self._break_walls_r(0, 0)
+        self._reset_cells_visited()
 
     def _create_cells(self):
         """Fill the maze with cells.
@@ -192,6 +199,7 @@ class Maze:
 
     def _animate(self):
         """Visualize the algorithm in real time."""
+
         if self.win is None:
             return
         self.win.redraw()
@@ -199,6 +207,7 @@ class Maze:
 
     def _break_entrance_and_exit(self) -> None:
         """Breaking entrance and exit."""
+
         top_left_cell = self._cells[0][0]
         right_bottom_cell = self._cells[-1][-1]
 
@@ -207,3 +216,67 @@ class Maze:
 
         self._draw_cell(0, 0)
         self._draw_cell(self.num_cols - 1, self.num_rows - 1)
+
+    def get_neighbors_coords(self, i: int, j: int) -> dict[str, tuple[int, int]]:
+        """Get neighbors."""
+
+        neighbors = {
+            "top": (i, j - 1),
+            "bottom": (i, j + 1),
+            "left": (i - 1, j),
+            "right": (i + 1, j),
+        }
+
+        for k, (x, y) in list(neighbors.items()):
+            if not (0 <= x <= self.num_cols - 1 and 0 <= y <= self.num_rows - 1):
+                del neighbors[k]
+        return neighbors
+
+    @staticmethod
+    def get_opposite_direction(direction: str) -> str:
+        """Return opposite direction."""
+        match direction:
+            case "top":
+                return "bottom"
+            case "bottom:":
+                return "top"
+            case "left":
+                return "right"
+            case "right":
+                return "left"
+            case _:
+                raise ValueError("Unknown direction.")
+
+    def _break_walls_r(self, i: int, j: int) -> None:
+        """Breaking walls."""
+
+        current_cell = self._cells[i][j]
+        current_cell.visited = True
+
+        while True:
+            neighbors_coords = self.get_neighbors_coords(i, j)
+            neighbors = {k: self._cells[x][y] for k, (x, y) in neighbors_coords.items()}
+            unvisited = [k for k, v in list(neighbors.items()) if not v.visited]
+
+            if not unvisited:
+                self._draw_cell(i, j)
+                return
+
+            direction = random.choice(unvisited)  # nosec
+
+            current_cell.configs[f"has_{direction}_wall"] = False
+            self._draw_cell(i, j)
+
+            x, y = neighbors_coords[direction]
+            next_cell = self._cells[x][y]
+            next_cell_broken_wall_direction = self.get_opposite_direction(direction)
+            next_cell.configs[f"has_{next_cell_broken_wall_direction}_wall"] = False
+
+            self._break_walls_r(x, y)
+
+    def _reset_cells_visited(self) -> None:
+        """Reset visited cells."""
+
+        for i in range(self.num_cols):  # x-axis
+            for j in range(self.num_rows):  # y-axis
+                self._cells[i][j].visited = False
