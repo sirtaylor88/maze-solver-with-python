@@ -9,6 +9,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 ![Sphinx](https://img.shields.io/badge/docs-sphinx-blue?logo=sphinx&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)
+![GitHub Release](https://img.shields.io/github/v/release/sirtaylor88/maze-solver-with-python?logo=github)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 > A **maze generator and solver** built with Python and **tkinter**.  

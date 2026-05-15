@@ -1,0 +1,91 @@
+name: Build Executable & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build — ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            exe: maze-solver
+            asset: maze-solver-linux-x86_64
+          - os: windows-latest
+            exe: maze-solver.exe
+            asset: maze-solver-windows-x86_64.exe
+          - os: macos-latest
+            exe: maze-solver
+            asset: maze-solver-macos-arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tcl/Tk (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tk tcl
+
+      - name: Install Tcl/Tk (macOS)
+        if: runner.os == 'macOS'
+        run: brew install tcl-tk
+
+      - name: Set up uv and Python 3.12
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Build executable
+        shell: bash
+        run: |
+          uv run pyinstaller \
+            --onefile \
+            --name maze-solver \
+            --clean \
+            --noconfirm \
+            maze_solver_with_python/__main__.py
+
+      - name: Rename binary for release
+        shell: bash
+        run: mv dist/${{ matrix.exe }} dist/${{ matrix.asset }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: dist/${{ matrix.asset }}
+          if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --title "Release ${{ github.ref_name }}" \
+            --generate-notes \
+            dist/*
