@@ -22,10 +22,15 @@ dev = [
     "bandit>=1.8.3",
     "mypy>=1.15.0",
     "pre-commit>=4.2.0",
+    "pydocstyle>=6.3.0",
     "pylint>=3.3.6",
     "pytest>=8.3.5",
     "pytest-cov>=6.1.1",
     "ruff>=0.11.8",
+    "sphinx>=9.1.0",
+    "sphinx-autobuild>=2025.8.25",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-lint>=1.0.2",
 ]
 
 [tool.ruff]
@@ -36,8 +41,11 @@ target-version = "py312"
 [tool.ruff.lint]
 extend-select = ["I"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["maze_solver_with_python"]
+
 [tool.pylint.MAIN]
-ignore = [".venv"]
+ignore = [".venv", "docs"]
 
 [tool.pylint."messages control"]
 disable = [
@@ -54,3 +62,22 @@ ignore_missing_imports = true
 
 [tool.bandit]
 exclude_dirs = [".venv", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["."]
+omit = ["tests/*", ".venv/*", "docs/*"]
+
+[tool.pydocstyle]
+convention = "google"
+match_dir = "(?!\\.venv|docs|tests)"
+add_ignore = ["D417"]
+
+[tool.pylint.typecheck]
+ignored-modules = ["pygame"]
+
+[tool.pylint."messages-control"]
+disable = ["R0801", "W0621"]
