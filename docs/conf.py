@@ -18,17 +18,25 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
     "sphinx_copybutton",
 ]
 
-# Napoleon settings for Google-style docstrings
+# Napoleon — Google-style docstrings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = True
 napoleon_attr_annotations = True
 
+# Autodoc
 autodoc_member_order = "bysource"
 autodoc_typehints = "description"
+autodoc_typehints_format = "short"
+
+# Intersphinx — link to Python stdlib
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build"]
@@ -41,5 +49,7 @@ html_theme_options = {
     "description": "A maze generator and solver built with Python and tkinter.",
     "github_user": "sirtaylor88",
     "github_repo": "maze-solver-with-python",
+    "github_button": True,
+    "github_type": "star",
     "fixed_sidebar": True,
 }

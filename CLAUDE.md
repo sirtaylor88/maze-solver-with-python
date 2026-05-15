@@ -12,7 +12,7 @@ uv run maze
 uv run pytest -vvs --cov=maze_solver_with_python maze_solver_with_python/tests/
 
 # Run a single test
-uv run pytest -vvs maze_solver_with_python/tests/test_maze.py::test_maze
+uv run pytest -vvs maze_solver_with_python/tests/test_maze.py::test_maze_solve_returns_true
 
 # Lint and format
 uv run ruff check --fix .
@@ -23,6 +23,19 @@ uv run bandit -r . -c pyproject.toml
 
 # Run all pre-commit checks at once
 pre-commit run --all-files
+
+# Build Sphinx HTML docs
+uv run sphinx-build -b html docs/ docs/_build/html
+
+# Live-reload docs
+uv run sphinx-autobuild docs/ docs/_build/html
+
+# Build standalone executable (output: dist/maze-solver)
+bash scripts/build_exe.sh
+
+# Docker — build and run with X11 forwarding
+xhost +local:docker
+docker compose up --build
 ```
 
 ## Architecture
@@ -45,3 +58,9 @@ All logic lives in `maze_solver_with_python/core/models.py`. There are no submod
 **Indexing convention:** `_cells[i][j]` where `i` is the column (x) and `j` is the row (y). `num_cols` controls the x-dimension, `num_rows` the y-dimension.
 
 **Headless mode:** passing `win=None` (default) to `Maze` and `Cell` skips all drawing and animation, enabling fast unit tests without a display.
+
+## Deployment
+
+- **Docker:** `docker compose up --build` — requires X11 forwarding (`xhost +local:docker` on Linux)
+- **Executable:** `bash scripts/build_exe.sh` — PyInstaller bundles everything into `dist/maze-solver`
+- **Release:** push a `v*` tag to trigger `.github/workflows/release.yml`, which builds binaries for Linux, Windows, and macOS and creates a GitHub Release

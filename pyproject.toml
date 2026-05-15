@@ -32,6 +32,7 @@ dev = [
     "sphinx-copybutton>=0.5.2",
     "sphinx-lint>=1.0.2",
     "pyinstaller>=6.13.0",
+    "pillow>=12.2.0",
 ]
 
 [tool.ruff]

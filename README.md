@@ -15,6 +15,8 @@
 > A **maze generator and solver** built with Python and **tkinter**.  
 > Mazes are generated with randomised recursive backtracking and solved with depth-first search, animated in real time.
 
+![Maze preview](assets/maze_preview.png)
+
 ---
 
 ## Table of Contents
