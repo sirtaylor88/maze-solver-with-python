@@ -1,7 +1,7 @@
 # Maze Solver with Python
 
 ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white)
-![Poetry](https://img.shields.io/badge/poetry-package_manager-60A5FA?logo=poetry&logoColor=white)
+![uv](https://img.shields.io/badge/uv-package_manager-DE5FE9?logo=uv&logoColor=white)
 ![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -21,7 +21,7 @@
 ## Prerequisites
 
 - Python 3.12 (via [pyenv](https://github.com/pyenv/pyenv))
-- [Poetry](https://python-poetry.org/)
+- [uv](https://docs.astral.sh/uv/)
 
 ---
 
@@ -29,11 +29,8 @@
 
 ```bash
 pyenv local 3.12.9
-python -m venv .venv
-source .venv/bin/activate
-pip install poetry
-poetry install
-pip install -e .
+uv sync --all-groups
+uv run pre-commit install
 ```
 
 ---
@@ -41,7 +38,7 @@ pip install -e .
 ## Usage
 
 ```bash
-maze
+uv run maze
 ```
 
 A window (800×600) opens showing the maze being generated and then solved step by step.
@@ -53,16 +50,17 @@ A window (800×600) opens showing the maze being generated and then solved step 
 ### Tests
 
 ```bash
-./scripts/test.sh
+uv run pytest -vvs --cov=maze_solver_with_python maze_solver_with_python/tests/
 ```
 
 ### Linting & type checking
 
 ```bash
-ruff check .
-pylint maze_solver_with_python/
-mypy .
-bandit -r maze_solver_with_python/ -c pyproject.toml
+uv run ruff check --fix .
+uv run ruff format .
+uv run pylint maze_solver_with_python/
+uv run mypy .
+uv run bandit -r . -c pyproject.toml
 ```
 
 ### All checks at once
