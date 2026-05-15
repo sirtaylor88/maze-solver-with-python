@@ -8,6 +8,7 @@
 ![Bandit](https://img.shields.io/badge/bandit-security-orange?logo=python&logoColor=white)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 ![Sphinx](https://img.shields.io/badge/docs-sphinx-blue?logo=sphinx&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 > A **maze generator and solver** built with Python and **tkinter**.  
@@ -21,6 +22,8 @@
 - [Setup](#setup)
 - [Usage](#usage)
 - [How it works](#how-it-works)
+- [Docker](#docker)
+- [Standalone Executable](#standalone-executable)
 - [Development](#development)
 - [Documentation](#documentation)
 
@@ -61,6 +64,49 @@ An 800 × 600 window opens. The maze is drawn cell by cell as it is generated, t
 | Solving | Depth-first search | `Maze.solve` |
 
 The grid is stored column-major as `_cells[col][row]`. The entrance is the top wall of `_cells[0][0]`; the exit is the bottom wall of `_cells[-1][-1]`. Pass a `seed` to `Maze` for reproducible layouts.
+
+---
+
+## Docker
+
+The container forwards the maze GUI to your host display via X11.
+
+**Prerequisites:** Docker and a running X11 server. On Linux, grant the container access first:
+
+```bash
+xhost +local:docker
+```
+
+### Build and run with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+### Build and run manually
+
+```bash
+docker build -t maze-solver .
+docker run --rm \
+  -e DISPLAY=$DISPLAY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  --network host \
+  maze-solver
+```
+
+> **WSL2 note:** WSLg provides X11 automatically. Set `DISPLAY=:0` if the variable is not already exported.
+
+---
+
+## Standalone Executable
+
+Builds a self-contained binary (no Python installation required on the target machine). The output is platform-specific — build on the OS you intend to run it on.
+
+```bash
+bash scripts/build_exe.sh
+```
+
+The binary is written to `dist/maze-solver` (Linux) or `dist/maze-solver.exe` (Windows).
 
 ---
 

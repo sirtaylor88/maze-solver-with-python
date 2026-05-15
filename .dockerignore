@@ -1,0 +1,11 @@
+.git/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+dist/
+build/
+docs/_build/
+*.pyc
+.coverage
